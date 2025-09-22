@@ -1,0 +1,35 @@
+// GAP Protocol Browser Extension - Background Script
+
+chrome.runtime.onInstalled.addListener(() => {
+    console.log('GAP Protocol Extension installed');
+
+    // Create context menu item
+    chrome.contextMenus.create({
+        id: 'gap-wrap-selection',
+        title: 'Wrap with GAP Protocol',
+        contexts: ['selection']
+    });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'gap-wrap-selection') {
+        // Execute GAP wrapping on the selected text
+        chrome.tabs.executeScript(tab.id, {
+            code: `
+                const selection = window.getSelection().toString();
+                if (selection) {
+                    // This would trigger the GAP wrapping process
+                    console.log('GAP wrapping:', selection);
+                }
+            `
+        });
+    }
+});
+
+// Handle messages from content scripts
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'wrapWithGAP') {
+        // Handle GAP wrapping request
+        sendResponse({ success: true });
+    }
+});

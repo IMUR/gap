@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "GAP Protocol Assistant",
+  "version": "0.1.0",
+  "description": "Preserve context when sharing content between AI chats using GAP Protocol",
+
+  "permissions": [
+    "clipboardWrite",
+    "clipboardRead",
+    "activeTab",
+    "storage"
+  ],
+
+  "content_scripts": [{
+    "matches": ["*://*/*"],
+    "js": ["content.js"],
+    "css": ["styles.css"]
+  }],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "GAP Protocol"
+  },
+
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

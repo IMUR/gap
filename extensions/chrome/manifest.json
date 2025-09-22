@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "GAP Protocol Assistant",
+  "version": "0.1.0",
+  "description": "Preserve context when sharing content between AI chats using GAP Protocol",
+
+  "permissions": [
+    "clipboardWrite",
+    "clipboardRead",
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "http://localhost:8000/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://claude.ai/*",
+        "*://chat.openai.com/*",
+        "*://gemini.google.com/*",
+        "*://copilot.microsoft.com/*",
+        "*://www.perplexity.ai/*",
+        "*://poe.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "GAP Protocol - Click to wrap or transform content",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "commands": {
+    "wrap-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+G",
+        "mac": "Command+Shift+G"
+      },
+      "description": "Wrap selected text with GAP"
+    },
+    "quick-transform": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+T",
+        "mac": "Command+Shift+T"
+      },
+      "description": "Transform clipboard GAP content"
+    }
+  }
+}

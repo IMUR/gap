@@ -1,0 +1,160 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "GAP: Start Service",
+      "command": "uv run uvicorn services.fastapi_service:app --reload --host 0.0.0.0 --port 8000",
+      "type": "shell",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "clear": true
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "GAP: Wrap Selection",
+      "command": "uv run python -m cli.gap_cli wrap --clipboard --platform ${input:platform} --chat-id ${input:chatId} --copy",
+      "type": "shell",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "GAP: Transform Clipboard",
+      "command": "uv run python -m cli.gap_cli transform --clipboard --target ${input:targetPlatform} --copy",
+      "type": "shell",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "GAP: Update Entity",
+      "command": "uv run python -m cli.gap_cli update-entity --clipboard --key ${input:entityKey} --value ${input:entityValue} --copy",
+      "type": "shell",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "GAP: Run Tests",
+      "command": "uv run pytest tests/ -v",
+      "type": "shell",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "GAP: Format Code",
+      "command": "uv run black . && uv run ruff check --fix .",
+      "type": "shell",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "GAP: Install/Update Dependencies",
+      "command": "uv sync",
+      "type": "shell",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "GAP: Check Service Health",
+      "command": "curl -s http://localhost:8000/health | python -m json.tool",
+      "type": "shell",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "GAP: Build Extension",
+      "command": "cd extensions/chrome && zip -r ../../gap-extension.zip .",
+      "type": "shell",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "platform",
+      "type": "pickString",
+      "description": "Select source platform",
+      "options": [
+        "claude.ai",
+        "chatgpt",
+        "gemini",
+        "copilot",
+        "perplexity",
+        "zed"
+      ],
+      "default": "zed"
+    },
+    {
+      "id": "targetPlatform",
+      "type": "pickString",
+      "description": "Select target platform",
+      "options": [
+        "claude.ai",
+        "chatgpt",
+        "gemini",
+        "copilot",
+        "perplexity",
+        "generic"
+      ],
+      "default": "claude.ai"
+    },
+    {
+      "id": "chatId",
+      "type": "promptString",
+      "description": "Enter chat/session ID",
+      "default": "zed_session"
+    },
+    {
+      "id": "entityKey",
+      "type": "promptString",
+      "description": "Enter entity key (e.g., 'the_system')",
+      "default": "the_system"
+    },
+    {
+      "id": "entityValue",
+      "type": "promptString",
+      "description": "Enter entity value/definition",
+      "default": ""
+    }
+  ]
+}

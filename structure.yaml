@@ -1,0 +1,130 @@
+version: "1.0"
+project:
+  name: "gap-protocol"
+  description: "Global Addressment Protocol for AI context preservation"
+  type: "python-library"
+  package-manager: "uv"
+  python-version: "3.11+"
+
+structure:
+  src:
+    type: "source"
+    mutable: true
+    purpose: "Core GAP protocol implementation"
+    modules:
+      gap:
+        description: "Protocol, models, entities, transformers"
+        files:
+          - protocol.py: "Main GAPProtocol class"
+          - models.py: "Pydantic data models"
+          - entities.py: "Entity detection and management"
+          - transformers.py: "Platform-specific transformers"
+      integrations:
+        description: "Platform integrations"
+        status: "future"
+
+  services:
+    type: "services"
+    mutable: true
+    purpose: "API services"
+    components:
+      fastapi_service: "REST API on port 8000"
+      mcp_server: "Model Context Protocol server"
+
+  cli:
+    type: "tools"
+    mutable: true
+    purpose: "Command-line interface"
+    entry: "gap_cli.py"
+
+  extensions:
+    type: "assets"
+    mutable: false
+    purpose: "Browser extension code"
+    platforms:
+      - chrome
+      - firefox: "planned"
+
+  scripts:
+    type: "automation"
+    mutable: false
+    purpose: "Installation and management scripts"
+    files:
+      - install.sh: "One-click installation"
+      - start_services.sh: "Service launcher"
+      - dev_setup.sh: "Development environment"
+
+  tests:
+    type: "tests"
+    mutable: true
+    purpose: "Test suite"
+    status: "to-be-implemented"
+
+  docs:
+    type: "documentation"
+    mutable: true
+    purpose: "Project documentation"
+    structure:
+      - governance: "Rules and decisions"
+      - architecture: "Design documentation"
+      - guides: "How-to guides"
+      - original: "Historical proposals"
+
+  examples:
+    type: "examples"
+    mutable: false
+    purpose: "Usage examples and patterns"
+
+  .zed:
+    type: "configuration"
+    mutable: true
+    purpose: "ZED IDE integration"
+
+  .archive:
+    type: "historical"
+    mutable: false
+    purpose: "Archived implementations and migrations"
+    warning: "Do not modify archived files"
+
+tools:
+  cli:
+    name: "gap-cli"
+    path: "cli/gap_cli.py"
+    entry: "uv run gap-cli"
+    description: "GAP Protocol command-line tool"
+
+  service:
+    name: "gap-service"
+    path: "services/fastapi_service.py"
+    entry: "uv run uvicorn services.fastapi_service:app"
+    description: "GAP Protocol REST API"
+    port: 8000
+
+  mcp:
+    name: "gap-mcp"
+    path: "services/mcp_server.py"
+    entry: "uv run python -m services.mcp_server"
+    description: "MCP server for AI tool integration"
+    status: "requires-mcp-library"
+
+dependencies:
+  runtime:
+    - fastapi: "REST API framework"
+    - uvicorn: "ASGI server"
+    - pydantic: "Data validation"
+    - rich: "Terminal formatting"
+    - pyperclip: "Clipboard operations"
+    - python-dotenv: "Environment management"
+    - httpx: "HTTP client"
+
+  development:
+    - pytest: "Testing framework"
+    - black: "Code formatter"
+    - ruff: "Linter"
+    - mypy: "Type checker"
+
+entry-points:
+  primary: "./scripts/start_services.sh"
+  cli: "uv run gap-cli --help"
+  api: "http://localhost:8000"
+  docs: "http://localhost:8000/docs"

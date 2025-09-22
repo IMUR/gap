@@ -1,0 +1,61 @@
+{
+  "project_name": "GAP Protocol",
+  "python": {
+    "interpreter": ".venv/bin/python",
+    "formatting": {
+      "provider": "black",
+      "blackPath": "uv run black"
+    },
+    "linting": {
+      "enabled": true,
+      "provider": "ruff",
+      "ruffPath": "uv run ruff"
+    }
+  },
+  "files": {
+    "exclude": {
+      "**/.git": true,
+      "**/.venv": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "**/.pytest_cache": true,
+      "**/.ruff_cache": true,
+      "**/uv.lock": true
+    }
+  },
+  "terminal": {
+    "integrated": {
+      "env": {
+        "GAP_USE_API": "false",
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    }
+  },
+  "shortcuts": [
+    {
+      "key": "cmd+shift+g cmd+w",
+      "command": "workbench.action.tasks.runTask",
+      "args": "GAP: Wrap Selection"
+    },
+    {
+      "key": "cmd+shift+g cmd+t",
+      "command": "workbench.action.tasks.runTask",
+      "args": "GAP: Transform Clipboard"
+    },
+    {
+      "key": "cmd+shift+g cmd+e",
+      "command": "workbench.action.tasks.runTask",
+      "args": "GAP: Update Entity"
+    },
+    {
+      "key": "cmd+shift+g cmd+s",
+      "command": "workbench.action.tasks.runTask",
+      "args": "GAP: Start Service"
+    }
+  ],
+  "startup": {
+    "tasks": [
+      "GAP: Install/Update Dependencies"
+    ]
+  }
+}

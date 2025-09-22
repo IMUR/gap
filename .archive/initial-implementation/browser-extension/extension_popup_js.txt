@@ -1,0 +1,180 @@
+// GAP Protocol Browser Extension - Popup Script
+
+class GAPPopup {
+    constructor() {
+        this.gapServiceUrl = 'http://localhost:8000';
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.checkServiceStatus();
+    }
+
+    bindEvents() {
+        document.getElementById('wrap-selection').addEventListener('click', () => {
+            this.wrapSelection();
+        });
+
+        document.getElementById('paste-and-transform').addEventListener('click', () => {
+            this.pasteAndTransform();
+        });
+
+        document.getElementById('check-service').addEventListener('click', () => {
+            this.checkServiceStatus();
+        });
+
+        document.getElementById('open-docs').addEventListener('click', () => {
+            chrome.tabs.create({ url: 'https://github.com/your-repo/gap-protocol' });
+        });
+    }
+
+    async wrapSelection() {
+        try {
+            // Get active tab and execute content script
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+            const result = await chrome.tabs.executeScript(tab.id, {
+                code: 'window.getSelection().toString()'
+            });
+
+            const selection = result[0];
+            if (!selection) {
+                this.showStatus('Please select some text on the page first', 'error');
+                return;
+            }
+
+            const threadId = document.getElementById('thread-id').value.trim();
+            const gapContent = await this.wrapWithGAP(selection, tab.url, threadId);
+
+            await this.copyToClipboard(gapContent);
+            this.showStatus('Content wrapped with GAP and copied to clipboard!', 'success');
+
+        } catch (error) {
+            console.error('Error wrapping selection:', error);
+            this.showStatus('Error wrapping content', 'error');
+        }
+    }
+
+    async pasteAndTransform() {
+        try {
+            const clipboardText = await navigator.clipboard.readText();
+
+            if (!this.isGAPContent(clipboardText)) {
+                this.showStatus('Clipboard does not contain GAP content', 'error');
+                return;
+            }
+
+            const targetPlatform = document.getElementById('target-platform').value;
+            const transformed = await this.transformGAPContent(clipboardText, targetPlatform);
+
+            await this.copyToClipboard(transformed);
+            this.showStatus('Content transformed and copied to clipboard!', 'success');
+
+        } catch (error) {
+            console.error('Error transforming content:', error);
+            this.showStatus('Error transforming content', 'error');
+        }
+    }
+
+    async wrapWithGAP(content, url, threadId) {
+        const platform = new URL(url).hostname;
+        const chatId = `ext_${Date.now()}`;
+
+        const requestData = {
+            content: content,
+            platform: platform,
+            chat_id: chatId,
+            thread_id: threadId || 'untitled',
+            role: 'assistant'
+        };
+
+        try {
+            const response = await fetch(`${this.gapServiceUrl}/gap/wrap`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const result = await response.json();
+            return result.gap_markdown;
+
+        } catch (error) {
+            // Fallback to simple format
+            return this.createSimpleGAPMarkdown(content, platform, threadId);
+        }
+    }
+
+    createSimpleGAPMarkdown(content, platform, threadId) {
+        const timestamp = new Date().toISOString();
+        return `[GAP:START]
+From: ${platform} | Thread: ${threadId || 'untitled'}
+Context: Browser selection from ${timestamp}
+Entities: [AUTO-DETECTED]
+[GAP:CONTENT]
+${content}
+[GAP:END]`;
+    }
+
+    async transformGAPContent(gapContent, targetPlatform) {
+        try {
+            const response = await fetch(`${this.gapServiceUrl}/gap/transform`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gap_markdown: gapContent,
+                    target_platform: targetPlatform
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const result = await response.json();
+            return result.transformed_content;
+
+        } catch (error) {
+            // Fallback: just extract content from GAP markdown
+            const contentMatch = gapContent.match(/\[GAP:CONTENT\](.*?)\[GAP:END\]/s);
+            return contentMatch ? contentMatch[1].trim() : gapContent;
+        }
+    }
+
+    isGAPContent(text) {
+        return text.includes('[GAP:START]') && text.includes('[GAP:CONTENT]') && text.includes('[GAP:END]');
+    }
+
+    async copyToClipboard(text) {
+        await navigator.clipboard.writeText(text);
+    }
+
+    async checkServiceStatus() {
+        try {
+            const response = await fetch(`${this.gapServiceUrl}/health`);
+            if (response.ok) {
+                this.showStatus('GAP service is running ✓', 'success');
+            } else {
+                this.showStatus('GAP service error', 'error');
+            }
+        } catch (error) {
+            this.showStatus('GAP service not found. Start with: python gap_fastapi_service.py', 'error');
+        }
+    }
+
+    showStatus(message, type) {
+        const statusDiv = document.getElementById('status-message');
+        statusDiv.textContent = message;
+        statusDiv.className = `status ${type}`;
+
+        setTimeout(() => {
+            statusDiv.textContent = '';
+            statusDiv.className = '';
+        }, 3000);
+    }
+}
+
+// Initialize popup when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new GAPPopup();
+});

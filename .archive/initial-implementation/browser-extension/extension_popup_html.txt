@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 300px;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        h2 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        button {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .primary {
+            background: #4CAF50;
+            color: white;
+        }
+        .secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        input, select {
+            width: 100%;
+            padding: 6px;
+            margin: 3px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+        .status {
+            font-size: 12px;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d2e;
+        }
+        .status.error {
+            background: #ffeaea;
+            color: #d8000c;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔗 GAP Protocol Assistant</h2>
+
+    <div class="section">
+        <button id="wrap-selection" class="primary">Wrap Selected Text</button>
+        <button id="paste-and-transform" class="secondary">Paste & Transform GAP</button>
+    </div>
+
+    <div class="section">
+        <label for="target-platform">Target Platform:</label>
+        <select id="target-platform">
+            <option value="claude.ai">Claude</option>
+            <option value="openai.com">ChatGPT</option>
+            <option value="gemini.google.com">Gemini</option>
+            <option value="copilot.microsoft.com">Copilot</option>
+            <option value="other">Other</option>
+        </select>
+
+        <label for="thread-id">Thread ID:</label>
+        <input type="text" id="thread-id" placeholder="Optional thread identifier">
+    </div>
+
+    <div class="section">
+        <button id="check-service" class="secondary">Check GAP Service</button>
+        <button id="open-docs" class="secondary">Open Documentation</button>
+    </div>
+
+    <div id="status-message"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

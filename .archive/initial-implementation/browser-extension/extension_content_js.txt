@@ -1,0 +1,215 @@
+// GAP Protocol Browser Extension - Content Script
+
+class GAPExtension {
+    constructor() {
+        this.gapServiceUrl = 'http://localhost:8000';
+        this.init();
+    }
+
+    init() {
+        this.addGAPButton();
+        this.listenForCopyEvents();
+    }
+
+    addGAPButton() {
+        // Add a floating GAP button to the page
+        const gapButton = document.createElement('div');
+        gapButton.id = 'gap-assistant-button';
+        gapButton.innerHTML = '🔗 GAP';
+        gapButton.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-size: 12px;
+        `;
+
+        gapButton.addEventListener('click', () => this.handleGAPClick());
+        document.body.appendChild(gapButton);
+    }
+
+    async handleGAPClick() {
+        const selection = window.getSelection().toString().trim();
+
+        if (!selection) {
+            this.showToast('Please select some text first', 'warning');
+            return;
+        }
+
+        try {
+            const gapContent = await this.wrapWithGAP(selection);
+            await this.copyToClipboard(gapContent);
+            this.showToast('Content wrapped with GAP and copied to clipboard!', 'success');
+        } catch (error) {
+            console.error('GAP Error:', error);
+            this.showToast('Error wrapping content with GAP', 'error');
+        }
+    }
+
+    async wrapWithGAP(content) {
+        const platform = window.location.hostname;
+        const chatId = `browser_${Date.now()}`;
+        const threadId = await this.promptForThreadId();
+
+        const requestData = {
+            content: content,
+            platform: platform,
+            chat_id: chatId,
+            thread_id: threadId,
+            role: 'assistant'
+        };
+
+        try {
+            const response = await fetch(`${this.gapServiceUrl}/gap/wrap`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.gap_markdown;
+        } catch (error) {
+            // Fallback to simple markdown format if service is unavailable
+            return this.createSimpleGAPMarkdown(content, platform, threadId);
+        }
+    }
+
+    createSimpleGAPMarkdown(content, platform, threadId) {
+        const timestamp = new Date().toISOString();
+        return `[GAP:START]
+From: ${platform} | Thread: ${threadId}
+Context: Selected text from ${timestamp}
+Entities: [AUTO-DETECTED]
+[GAP:CONTENT]
+${content}
+[GAP:END]`;
+    }
+
+    async promptForThreadId() {
+        return new Promise((resolve) => {
+            const modal = this.createModal();
+            const input = modal.querySelector('#thread-id-input');
+            const submitBtn = modal.querySelector('#submit-thread-id');
+            const cancelBtn = modal.querySelector('#cancel-thread-id');
+
+            submitBtn.addEventListener('click', () => {
+                const threadId = input.value.trim() || 'untitled';
+                document.body.removeChild(modal);
+                resolve(threadId);
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                resolve('untitled');
+            });
+
+            document.body.appendChild(modal);
+            input.focus();
+        });
+    }
+
+    createModal() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        modal.innerHTML = `
+            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px;">
+                <h3 style="margin: 0 0 10px 0;">GAP Protocol</h3>
+                <label for="thread-id-input">Thread ID (optional):</label>
+                <input type="text" id="thread-id-input" placeholder="Enter thread ID" 
+                       style="width: 100%; margin: 10px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                    <button id="cancel-thread-id" style="padding: 8px 16px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button id="submit-thread-id" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Continue</button>
+                </div>
+            </div>
+        `;
+
+        return modal;
+    }
+
+    async copyToClipboard(text) {
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+    }
+
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 12px 20px;
+            background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+            color: white;
+            border-radius: 4px;
+            z-index: 10002;
+            max-width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        toast.textContent = message;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        }, 3000);
+    }
+
+    listenForCopyEvents() {
+        document.addEventListener('copy', (event) => {
+            // Could enhance this to automatically wrap copied content
+            // For now, just log that a copy occurred
+            console.log('Copy event detected - GAP could auto-wrap this');
+        });
+    }
+}
+
+// Initialize the GAP extension when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        new GAPExtension();
+    });
+} else {
+    new GAPExtension();
+}

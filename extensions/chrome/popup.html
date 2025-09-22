@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GAP Protocol</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>GAP Protocol</h1>
+      <span id="service-status" class="status-indicator" title="Service status">●</span>
+    </header>
+
+    <main class="popup-content">
+      <!-- Quick Actions -->
+      <section class="action-section">
+        <h2>Quick Actions</h2>
+        <button id="wrap-selection" class="action-button primary">
+          <span class="icon">📦</span>
+          Wrap Selection
+        </button>
+        <button id="transform-clipboard" class="action-button">
+          <span class="icon">🔄</span>
+          Transform from Clipboard
+        </button>
+      </section>
+
+      <!-- Settings -->
+      <section class="settings-section">
+        <h2>Settings</h2>
+
+        <div class="setting-group">
+          <label for="thread-id">Thread ID</label>
+          <input type="text" id="thread-id" placeholder="Optional thread identifier">
+        </div>
+
+        <div class="setting-group">
+          <label for="target-platform">Target Platform</label>
+          <select id="target-platform">
+            <option value="auto">Auto-detect</option>
+            <option value="claude.ai">Claude.ai</option>
+            <option value="chatgpt">ChatGPT</option>
+            <option value="gemini">Gemini</option>
+            <option value="copilot">Copilot</option>
+            <option value="perplexity">Perplexity</option>
+            <option value="generic">Generic</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <label for="service-url">Service URL</label>
+          <input type="text" id="service-url" value="http://localhost:8000">
+        </div>
+      </section>
+
+      <!-- Status Messages -->
+      <div id="status-message" class="status-message"></div>
+    </main>
+
+    <footer class="popup-footer">
+      <button id="open-docs" class="link-button">Documentation</button>
+      <button id="check-service" class="link-button">Check Service</button>
+      <button id="open-options" class="link-button">Options</button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
