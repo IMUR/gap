@@ -1,5 +1,9 @@
 # GAP Protocol (Global Addressment Protocol)
 
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![UV](https://img.shields.io/badge/UV-Package%20Manager-orange.svg)](https://github.com/astral-sh/uv)
+
 > 🌍 Preserving context and continuity across AI conversations
 
 ## Overview
@@ -27,8 +31,8 @@ GAP (Global Addressment Protocol) is a protocol and toolkit for maintaining cont
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd GAP
+git clone https://github.com/IMUR/gap.git
+cd gap
 
 # Run the installation script
 ./scripts/install.sh
@@ -229,17 +233,17 @@ The project includes ZED-specific configuration in `.zed/`:
 
 ## License
 
-[Your License Here]
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-- Original concept and proposal by [user]
-- Initial implementation by Perplexity AI
+- Original concept and proposal by the repository owner
+- Initial implementation assistance by Perplexity AI
 - Enhancements and ZED integration by Claude
 - UV-based restructuring and modern tooling updates
 
 ## Support
 
-- Report issues at: [GitHub Issues URL]
+- Report issues: [GitHub Issues](https://github.com/IMUR/gap/issues)
 - Documentation: See `/docs` folder
 - API Documentation: http://localhost:8000/docs (when service is running)
